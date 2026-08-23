@@ -53,7 +53,7 @@ Bakwaas is a **free, fully local, Hinglish-optimized** voice dictation tool for 
 ## 🚀 Quick Start
 
 ```bash
-git clone https://github.com/YOURUSERNAME/bakwaas.git
+git clone https://github.com/Tauqeer7Khan/Bakwaas
 cd bakwaas
 bash install.sh
 ```
@@ -69,7 +69,7 @@ bash install.sh
 ## 💻 Requirements
 
 - macOS 13+ (Ventura or later)
-- Apple Silicon Mac — M1 / M2 / M3 / M4
+- Apple Silicon Mac — M1 / M2 / M3 / M4 / M5
 - 16GB RAM (recommended)
 - ~15GB free disk space
 
