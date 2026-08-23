@@ -1,118 +1,76 @@
 # 🗣️💨📝 Bakwaas
 
-> **"Bakwaas karo, kaam ho jaaye"**
->
-> Turn your bakwaas into text — free, local, Hinglish dictation for Mac
+> **"Bakwaas karo, kaam ho jaaye"** — Turn your bakwaas into text.
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Platform](https://img.shields.io/badge/Platform-macOS-blue.svg)]()
-[![Apple Silicon](https://img.shields.io/badge/Apple%20Silicon-Optimized-green.svg)]()
-[![Status](https://img.shields.io/badge/Status-In%20Progress-yellow.svg)]()
+![macOS](https://img.shields.io/badge/macOS-13%2B-000000?style=for-the-badge&logo=apple&logoColor=white)
+![Apple Silicon](https://img.shields.io/badge/Apple_Silicon-M1%2F2%2F3%2F4%2F5-000000?style=for-the-badge&logo=apple&logoColor=white)
+![Python](https://img.shields.io/badge/Python-3.11%2B-3776AB?style=for-the-badge&logo=python&logoColor=white)
+![License](https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge)
 
----
+## What is Bakwaas?
+Bakwaas is a free, fully local, Hinglish-optimized voice dictation tool built natively for macOS (Apple Silicon). 
 
-## 🤔 The Problem
+It works exactly like Wispr Flow — you hold a hotkey, speak your mind, and your words are instantly typed at your cursor. The magic? It runs entirely on your device, ensuring 100% privacy, and is specifically optimized for people who speak in **Hinglish** (a natural mix of Hindi and English).
 
-I was tired of typing — tired of typing prompts to AI, tired of typing messages, ideas, and thoughts. Voice-to-text was the solution.
+## Why does it exist?
+I was tired of typing. I felt like typing was slowing down my thinking, so I started looking for voice-to-text tools. 
 
-But every tool I tried was either:
-- **Paid** (Wispr Flow $15/mo, Superwhisper $8.49/mo)
-- **Had usage limits** (hit Wispr Flow's weekly limit)
-- **Cloud-based** (voice data leaves your device)
-- **Didn't understand Hinglish** (Hindi + English mixed speech)
+I hit the weekly limits on Wispr Flow. I looked at alternatives like SuperWhisper, VoiceInk, and FreeFlow. But almost all of them were either heavily paid, had strict usage limits, or completely failed to understand how I actually talk (Hinglish).
 
-So I built Bakwaas.
+None of the free options worked well for code-switching between Hindi and English in a single sentence. So, I decided to build it myself: a completely free, local, Hinglish-native dictation engine for Mac.
 
----
+## How do I use it? (Quick Start)
 
-## ✅ What is Bakwaas?
-
-Bakwaas is a **free, fully local, Hinglish-optimized** voice dictation tool for Mac. Hold a hotkey → speak → text appears at your cursor. Works in any app.
-
-- 🆓 **100% Free** — no subscription, no limits, ever
-- 🔒 **100% Local** — your voice never leaves your Mac
-- 🇮🇳 **Hinglish-native** — trained on 1000+ hours of Indian audio
-- ⌨️ **System-wide** — Notion, Slack, VS Code, browser, anywhere
-- ⚡ **Fast** — Apple Silicon Metal acceleration
-- 🧹 **AI cleanup** — optional local LLM removes filler words
-
----
-
-## 🛠️ Tech Stack
-
-| Component | Tool |
-|---|---|
-| Speech Engine | whisper.cpp (Metal accelerated) |
-| Hinglish Model | Oriserve/Whisper-Hindi2Hinglish-Apex |
-| Hotkeys | Hammerspoon |
-| Audio Capture | sounddevice + ffmpeg |
-| Text Cleanup | Ollama + Gemma 4 (optional, local) |
-
----
-
-## 🚀 Quick Start
-
-```bash
-git clone https://github.com/Tauqeer7Khan/Bakwaas
-cd bakwaas
-bash install.sh
-```
-
-## ⌨️ Hotkeys
+Once installed, Bakwaas runs invisibly in the background. You interact with it entirely using the `Fn` key from *any* app on your Mac (Notion, VS Code, Browser, Terminal, etc.).
 
 | Hotkey | Action |
 |---|---|
-| Ctrl + Shift + B | Toggle recording (start / stop) |
-| Ctrl + Shift + D | Quick 5-second dictation |
-| Ctrl + Shift + T | Long 10-second dictation |
+| **Hold `Fn` key** | **Hold-to-Talk:** Starts recording when pressed down. Release to stop recording and instantly paste the transcribed text at your cursor. |
+| **Double Tap `Fn` key** | **Continuous Mode:** Locks recording state ON. Speak freely, then tap `Fn` once more to stop recording and paste. |
 
-## 💻 Requirements
+> **Behavior Note:** Transcribed text is instantly pasted at the active cursor, AND simultaneously stored in the macOS clipboard (so you can `Cmd+V` paste it manually later if needed).
 
-- macOS 13+ (Ventura or later)
-- Apple Silicon Mac — M1 / M2 / M3 / M4 / M5
-- 16GB RAM (recommended)
-- ~15GB free disk space
+## How do I install it?
+Because Bakwaas runs large AI models entirely on your local machine, setup takes a few steps. You'll need an Apple Silicon Mac (M1/M2/M3/M4/M5) with at least 16GB of RAM.
 
-## 🏗️ Architecture
+For a comprehensive step-by-step installation guide, check out:
+👉 **[SETUP.md](docs/SETUP.md)**
 
-```text
-🎤 Mic → Hammerspoon → sounddevice → Oriserve Hinglish Model → [Ollama Cleanup] → AppleScript → 📝 Any App
-```
+*Having issues during installation? Check the **[TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md)***
 
-## 📁 Project Structure
+## What's under the hood? (System Architecture)
+Bakwaas strings together several incredibly powerful open-source tools to create a seamless macOS experience:
 
 ```text
-bakwaas/
-├── bakwaas.py ← Core dictation engine
-├── download_model.py ← Model downloader
-├── test_model.py ← Model test script
-├── cleanup.py ← Ollama text cleanup
-├── install.sh ← One-click installer
-├── requirements.txt ← Python dependencies
-├── hammerspoon/
-│   └── init.lua ← Hotkey config
-└── docs/ ← Documentation
+🎤 MICROPHONE
+↓
+⌨️ HAMMERSPOON (Intercepts Fn key presses globally)
+↓
+🔊 SOUNDDEVICE (Captures raw mic input as 16kHz mono WAV)
+↓
+🧠 HINGLISH WHISPER MODEL (Trelis/whisper-hinglish-preview)
+   Transcribes Hinglish audio using Apple MPS hardware acceleration.
+↓
+🔤 INDIC-TRANSLITERATION (Post-processes Devanagari to clean Roman Hinglish)
+↓
+📋 APPLESCRIPT (Copies final text to clipboard & executes Cmd+V at the cursor)
+↓
+📝 ANY APP ON YOUR MAC
 ```
 
-## 🗺️ Roadmap
+### Core Tech Stack
+- **Speech Engine / Model:** [Trelis/whisper-hinglish-preview](https://huggingface.co/Trelis/whisper-hinglish-preview) (1.55B params, Whisper large-v3 based)
+- **System Hotkeys:** Hammerspoon & Lua
+- **Audio Capture:** `sounddevice` + `ffmpeg`
+- **Text Processing:** `indic-transliteration` & Regex
+- **Hardware Acceleration:** PyTorch with Apple Metal Performance Shaders (MPS)
 
-- [x] Project scaffolding
-- [ ] Phase 1 — Environment setup
-- [ ] Phase 2 — whisper.cpp build
-- [ ] Phase 3 — Hinglish model download
-- [ ] Phase 4 — Core dictation engine
-- [ ] Phase 5 — Hammerspoon hotkeys
-- [ ] Phase 6 — Ollama text cleanup
-- [ ] Phase 7 — GitHub publish
-- [ ] Phase 8 — LinkedIn post
+## How can I contribute?
+Contributions are incredibly welcome! Whether you want to improve the Hinglish regex corrections, optimize the Hammerspoon UI, or add new features, we'd love your help. Check out **[CONTRIBUTING.md](docs/CONTRIBUTING.md)** for guidelines.
 
-## 🙏 Credits
+## Credits & Acknowledgments
+A massive shoutout to the open-source community that makes this possible. Special thanks to the teams behind the **Oriserve** and **Trelis** Hinglish Whisper models, which form the absolute core brain of this dictation engine.
 
-- [whisper.cpp](https://github.com/ggml-org/whisper.cpp) — Georgi Gerganov
-- [Oriserve](https://huggingface.co/Oriserve) — Hinglish Whisper model
-- [Hammerspoon](https://www.hammerspoon.org/) — macOS automation
-- [Ollama](https://ollama.com/) — local LLM inference
-
-## 📄 License
-
-MIT — use it, fork it, build on it. Bakwaas karo! 🗣️💨📝
+---
+**Built by [Tauqeer Khan](https://www.linkedin.com/in/tauqeer7khan/)**  
+[GitHub Repository](https://github.com/Tauqeer7Khan/Bakwaas)
