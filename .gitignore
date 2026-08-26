@@ -46,3 +46,4 @@ whisper.cpp/models/*.bin
 venv/
 env/
 whisper.cpp/
+bakwaas-status.md
