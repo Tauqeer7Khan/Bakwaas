@@ -45,3 +45,4 @@ whisper.cpp/models/*.bin
 # Virtual environment
 venv/
 env/
+whisper.cpp/
