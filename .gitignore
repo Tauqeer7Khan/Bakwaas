@@ -47,3 +47,4 @@ venv/
 env/
 whisper.cpp/
 bakwaas-status.md
+.stop_bakwaas
