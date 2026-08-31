@@ -1,50 +1,16 @@
-# Models — too large for GitHub, download separately
-models/
-*.bin
-*.pt
-*.safetensors
-*.ggml
-*.gguf
-
 # Python
 venv/
-__pycache__/
+pycache/
 *.pyc
-*.pyo
-.eggs/
-*.egg-info/
-dist/
-build/
-
-# whisper.cpp build output
-whisper.cpp/build/
-whisper.cpp/models/*.bin
-
-# Audio files — never commit audio
 *.wav
-*.mp3
-*.m4a
-*.flac
 
-# macOS system files
-.DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-
-# IDE files
-.vscode/
-.idea/
-*.swp
-*.swo
-
-# Logs
-*.log
-
-# Virtual environment
-venv/
-env/
+# Models & Heavy Assets
+models/
 whisper.cpp/
-bakwaas-status.md
+
+# Runtime / State
 .stop_bakwaas
+task-*.log
+
+# OS
+.DS_Store
