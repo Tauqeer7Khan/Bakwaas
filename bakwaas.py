@@ -41,7 +41,12 @@ def get_pipeline():
         from transformers import pipeline
         
         logging.getLogger("transformers").setLevel(logging.ERROR)
-        device = "mps" if torch.backends.mps.is_available() else "cpu"
+        if torch.backends.mps.is_available():
+            device = "mps"
+        else:
+            device = "cpu"
+            print("Warning: MPS (Metal) not available. Falling back to CPU.", file=sys.stderr)
+            
         _pipeline = pipeline(
             "automatic-speech-recognition",
             model=MODEL_PATH,
@@ -52,20 +57,40 @@ def get_pipeline():
     return _pipeline
 
 def record_audio_fixed(duration, filename="temp.wav"):
-    recording = sd.rec(int(duration * SAMPLE_RATE), samplerate=SAMPLE_RATE, channels=CHANNELS, dtype='float32')
-    sd.wait()
-    save_wav(filename, recording)
+    recording = []
+    frames_to_record = int(duration * SAMPLE_RATE)
+    frames_recorded = 0
+    try:
+        with sd.InputStream(samplerate=SAMPLE_RATE, channels=CHANNELS, dtype='float32') as stream:
+            while frames_recorded < frames_to_record:
+                # Read in smaller chunks for responsiveness
+                chunk_size = min(4000, frames_to_record - frames_recorded)
+                data, _ = stream.read(chunk_size)
+                recording.append(data)
+                frames_recorded += chunk_size
+    except sd.PortAudioError as e:
+        print(f"Error: Could not open audio input device. Please check microphone permissions. ({e})", file=sys.stderr)
+        sys.exit(1)
+
+    audio_data = np.concatenate(recording, axis=0)
+    save_wav(filename, audio_data)
     return filename
 
 def record_audio_continuous(filename="temp.wav"):
     recording = []
     is_recording = True
+    error_msg = None
 
     def _record():
-        with sd.InputStream(samplerate=SAMPLE_RATE, channels=CHANNELS, dtype='float32') as stream:
-            while is_recording:
-                data, _ = stream.read(SAMPLE_RATE)
-                recording.append(data)
+        nonlocal error_msg
+        try:
+            with sd.InputStream(samplerate=SAMPLE_RATE, channels=CHANNELS, dtype='float32') as stream:
+                while is_recording:
+                    # Read 0.25s chunks for better responsiveness to stop event
+                    data, _ = stream.read(4000)
+                    recording.append(data)
+        except sd.PortAudioError as e:
+            error_msg = f"Error: Could not open audio input device. Please check microphone permissions. ({e})"
 
     thread = threading.Thread(target=_record)
     thread.start()
@@ -77,13 +102,17 @@ def record_audio_continuous(filename="temp.wav"):
         if sys.stdin and sys.stdin.isatty():
             input()
         else:
-            while not os.path.exists(STOP_FILE):
+            while not os.path.exists(STOP_FILE) and error_msg is None:
                 time.sleep(0.1)
     except (KeyboardInterrupt, EOFError):
         pass
 
     is_recording = False
     thread.join()
+    
+    if error_msg:
+        print(error_msg, file=sys.stderr)
+        sys.exit(1)
 
     audio_data = np.concatenate(recording, axis=0)
     save_wav(filename, audio_data)
@@ -105,16 +134,23 @@ def main():
     args = parser.parse_args()
 
     audio_file = "temp.wav"
-    if args.file:
-        audio_file = args.file
-    elif args.continuous:
-        record_audio_continuous(audio_file)
-    else:
-        record_audio_fixed(args.duration, audio_file)
+    try:
+        if args.file:
+            audio_file = args.file
+        elif args.continuous:
+            record_audio_continuous(audio_file)
+        else:
+            record_audio_fixed(args.duration, audio_file)
 
-    text = transcribe(audio_file)
-    copy_to_clipboard(text)
-    print(text)
+        text = transcribe(audio_file)
+        copy_to_clipboard(text)
+        print(text)
+    finally:
+        if not args.file and os.path.exists(audio_file):
+            try:
+                os.remove(audio_file)
+            except Exception:
+                pass
 
 if __name__ == "__main__":
     main()

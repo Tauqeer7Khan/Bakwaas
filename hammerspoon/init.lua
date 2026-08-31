@@ -73,7 +73,7 @@ local function pillBuild()
             font = {name=".AppleSystemUIFont", size=13},
             color = {red=0.95, green=0.95, blue=0.95, alpha=1},
         }),
-        frame = {x=38, y=0, w=PILL_W - 48, h=PILL_H},
+        frame = {x=40, y=0, w=PILL_W - 48, h=PILL_H},
         textAlignment = "left",
         textVerticalAlignment = "center",
     })
@@ -96,7 +96,7 @@ local function pillSetState(state)
         pillReposition()
         pill[ELEM_DOT].action = "fill"
         pill[ELEM_DOT].fillColor = {red=0.95, green=0.25, blue=0.25, alpha=1}
-        pill[ELEM_TEXT].text = hs.styledtext.new("🔴 Listening...", {
+        pill[ELEM_TEXT].text = hs.styledtext.new("Listening...", {
             font = {name=".AppleSystemUIFont", size=13},
             color = {red=0.95, green=0.95, blue=0.95, alpha=1},
         })
@@ -114,7 +114,7 @@ local function pillSetState(state)
         pillReposition()
         pill[ELEM_DOT].action = "fill"
         pill[ELEM_DOT].fillColor = {red=0.95, green=0.25, blue=0.25, alpha=1}
-        pill[ELEM_TEXT].text = hs.styledtext.new("🔴 Listening (Continuous)", {
+        pill[ELEM_TEXT].text = hs.styledtext.new("Listening (Continuous)", {
             font = {name=".AppleSystemUIFont", size=13},
             color = {red=0.95, green=0.95, blue=0.95, alpha=1},
         })
@@ -124,7 +124,7 @@ local function pillSetState(state)
         pillReposition()
         pill[ELEM_DOT].action = "fill"
         pill[ELEM_DOT].fillColor = {red=0.95, green=0.8, blue=0.25, alpha=1}
-        pill[ELEM_TEXT].text = hs.styledtext.new("⏳ Transcribing...", {
+        pill[ELEM_TEXT].text = hs.styledtext.new("Transcribing...", {
             font = {name=".AppleSystemUIFont", size=13},
             color = {red=0.95, green=0.8, blue=0.25, alpha=1},
         })
@@ -134,13 +134,13 @@ local function pillSetState(state)
         pillReposition()
         pill[ELEM_DOT].action = "fill"
         pill[ELEM_DOT].fillColor = {red=0.2, green=0.85, blue=0.35, alpha=1}
-        pill[ELEM_TEXT].text = hs.styledtext.new("✅ Done!", {
+        pill[ELEM_TEXT].text = hs.styledtext.new("Done!", {
             font = {name=".AppleSystemUIFont", size=13},
             color = {red=0.2, green=0.85, blue=0.35, alpha=1},
         })
         pill:show()
 
-        pillHideTimer = hs.timer.doAfter(1.2, function()
+        pillHideTimer = hs.timer.doAfter(2.0, function()
             if pill then pill:hide() end
             pillState = "idle"
         end)
@@ -149,13 +149,13 @@ local function pillSetState(state)
         pillReposition()
         pill[ELEM_DOT].action = "fill"
         pill[ELEM_DOT].fillColor = {red=0.95, green=0.25, blue=0.25, alpha=1}
-        pill[ELEM_TEXT].text = hs.styledtext.new("❌ Failed", {
+        pill[ELEM_TEXT].text = hs.styledtext.new("Failed", {
             font = {name=".AppleSystemUIFont", size=13},
             color = {red=0.95, green=0.3, blue=0.3, alpha=1},
         })
         pill:show()
 
-        pillHideTimer = hs.timer.doAfter(1.5, function()
+        pillHideTimer = hs.timer.doAfter(2.0, function()
             if pill then pill:hide() end
             pillState = "idle"
         end)
@@ -197,7 +197,12 @@ local function startRecording(modeName)
         end
     end, args)
 
-    recordingTask:start()
+    if not recordingTask:start() then
+        isRecording = false
+        isContinuousMode = false
+        pillSetState("idle")
+        hs.alert.show("Bakwaas Error: Failed to trigger Python execution", 3)
+    end
 end
 
 local function stopRecording()
@@ -256,5 +261,7 @@ local fnEventTap = hs.eventtap.new({hs.eventtap.event.types.flagsChanged}, funct
 end)
 
 -- INIT
+os.execute("pkill -f bakwaas.py")
+os.execute("rm -f " .. stopFile)
 pill = pillBuild()
 fnEventTap:start()
