@@ -60,6 +60,16 @@ bash install.sh
 
 > **Running into issues?** Check our [Troubleshooting Guide](docs/TROUBLESHOOTING.md) for quick fixes (permissions, slow first runs, etc).
 
+## 🛠️ Developer Commands
+
+| Command | Action |
+|---|---|
+| `make install` | Runs the setup script to install dependencies |
+| `make warmup` | Preloads the model into RAM for a faster first run |
+| `make health` | Runs diagnostics (checks Metal/MPS and audio stream) |
+| `make version` | Prints the Bakwaas version |
+| `make clean` | Removes temp files, logs, and `__pycache__` |
+
 ## ⌨️ Hotkeys
 
 | Hotkey | Action |

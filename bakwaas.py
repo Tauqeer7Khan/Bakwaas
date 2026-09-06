@@ -131,7 +131,31 @@ def main():
     parser.add_argument("-d", "--duration", type=int, default=5)
     parser.add_argument("-c", "--continuous", action="store_true")
     parser.add_argument("-f", "--file", type=str)
+    parser.add_argument("-v", "--version", action="store_true", help="Print version and exit")
+    parser.add_argument("--health", action="store_true", help="Run health diagnostic and exit")
     args = parser.parse_args()
+
+    if args.version:
+        print("Bakwaas v1.0.0")
+        sys.exit(0)
+
+    if args.health:
+        print("Running Bakwaas Health Diagnostic...")
+        import torch
+        print(f"PyTorch version: {torch.__version__}")
+        mps_available = torch.backends.mps.is_available()
+        print(f"MPS (Metal) Available: {'✅ Yes' if mps_available else '❌ No'}")
+        
+        try:
+            print("Testing audio stream...", end=" ", flush=True)
+            with sd.InputStream(samplerate=SAMPLE_RATE, channels=CHANNELS, dtype='float32') as stream:
+                _ = stream.read(1024)
+            print("✅ OK")
+        except Exception as e:
+            print(f"❌ Failed ({e})")
+            
+        print("Diagnostic Complete.")
+        sys.exit(0)
 
     audio_file = "temp.wav"
     try:
