@@ -58,6 +58,8 @@ cd bakwaas
 bash install.sh
 ```
 
+> **Running into issues?** Check our [Troubleshooting Guide](docs/TROUBLESHOOTING.md) for quick fixes (permissions, slow first runs, etc).
+
 ## ⌨️ Hotkeys
 
 | Hotkey | Action |
