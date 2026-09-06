@@ -1,4 +1,4 @@
-.PHONY: install warmup version health clean
+.PHONY: install warmup version health health-check clean
 
 install:
 	./install.sh
@@ -11,6 +11,9 @@ version:
 
 health:
 	venv/bin/python bakwaas.py --health
+
+health-check:
+	venv/bin/python scripts/check_health.py
 
 clean:
 	rm -f *.wav task-*.log .stop_bakwaas
